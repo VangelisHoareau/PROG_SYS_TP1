@@ -7,12 +7,17 @@ int running =1;
 
 void stop_handler(int sig){
     printf("\nLe numero du signal est : %d\n", sig);
-    //running=0;
+    running=0;
+}
+
+void exit_message(){
+    printf("Appel a exit_message donc bye ! ");
 }
 
 int main(){
     printf("coucou\n");
-    pid_t pid = fork();
+    //pid_t pid = fork();
+    pid_t pid=1;
     struct sigaction act;
     act.sa_handler=stop_handler;
     sigaction(SIGINT, &act, NULL);
@@ -35,6 +40,7 @@ int main(){
         }
     }
     printf("SUCCES !\n");
+    atexit(exit_message);
     return EXIT_SUCCESS;
 }
 
@@ -49,13 +55,27 @@ Lorssqu'on donne le processus père :
     - avec -s KILL : la bash est interrompu
     - sans : il ne se passe rien 
 
+Question 1.3
+
+en faisant :
+    - CTRL-C : exit_message est appelée
+    - kill : exit_message est appelée
+    - kill -9 : n'appelle pas exit_message
+
+Question 2-1
+
 En enlevant le changement de la variable running : 
     -le programme ne s'arrête pas avec CTRL-C mais au bout du 2ème le handler est appelé
     - même chose pour kill
     - Kill -9 arrête le processus sans appeler le handler
 
-Question 1.3
 
 Pour distinguer les deux messages on peut différencier les PIDs, celui duppliqué avec fork() vaut 0
-Les deux processus s'arrêtent avec 2 appels à CTRL-C , le handler n'est appelé que la première fois
+
+
+Le processus fils s'arrête, et seul le père continue.
+
+
+
+
 */
