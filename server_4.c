@@ -19,8 +19,11 @@ void exit_message(){
 
 int main(){
     printf("coucou\n");
+    int fds[2];
+    pipe(fds);
+
     pid_t pid = fork();
-    int code_retour_fils=0;
+    //int code_retour_fils=0;
     
     //pid_t pid=1;
     struct sigaction act;
@@ -33,20 +36,35 @@ int main(){
             printf("Le nouveau fork envoie : \n");
             printf("\tpid fils  : %d\n", getpid());
             printf("\tpid père : %d\n", getppid());
-            printf("\tnombre aléatoire : %d\n", (rand()%100));
-            sleep(3);
+            //printf("\tnombre aléatoire : %d\n", (rand()%100));
+            
+
+            close(fds[1]);
+            //dup2(fds[0],STDIN_FILENO);
+            int varRandom;
+            read(fds[0], &varRandom, sizeof(int));
+            printf("\tvarRandom = %d\n", varRandom);
         }
         else{
-            wait(&code_retour_fils);
+            //wait(&code_retour_fils);
             printf("Le processus initial envoie : \n");
             printf("\tpid fils : %d\n", getpid());
             printf("\tpid père : %d\n", getppid());
-            printf("\tnombre aléatoire : %d\n", (rand()%100));
-            if (code_retour_fils!=0){
-                printf("\tLe fils s'est arrêté avec un code %d\n", WEXITSTATUS(code_retour_fils));
-            }
-            sleep(3);
+            //printf("\tnombre aléatoire : %d\n", (rand()%100));
+
+            int varRandom = rand()%100;
+            close(fds[0]);
+
+            write(fds[1], &varRandom, sizeof(int));
+
+            
+
+            // if (code_retour_fils!=0){
+            //     printf("\tLe fils s'est arrêté avec un code %d\n", WEXITSTATUS(code_retour_fils));
+            // }
+            
         }
+        sleep(3);
     }
 
     printf("SUCCES !\n");
