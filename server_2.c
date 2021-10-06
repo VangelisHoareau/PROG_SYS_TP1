@@ -15,6 +15,7 @@ int main(){
     struct sigaction act;
     act.sa_handler=stop_handler;
     sigaction(SIGINT, &act, NULL);
+    sigaction(SIGTERM, &act, NULL);
     while(running){
         printf("pid fils : %d\n", getpid());
         printf("pid père : %d\n", getppid());
@@ -24,3 +25,5 @@ int main(){
     printf("SUCCES !\n");
     return EXIT_SUCCESS;
 }
+
+// Question 1.2
