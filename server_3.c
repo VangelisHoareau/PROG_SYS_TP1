@@ -2,11 +2,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/wait.h>
 
 int running =1;
+int code_retour =0;
 
 void stop_handler(int sig){
     printf("\nLe numero du signal est : %d\n", sig);
+    code_retour = sig;
     running=0;
 }
 
@@ -16,8 +19,10 @@ void exit_message(){
 
 int main(){
     printf("coucou\n");
-    //pid_t pid = fork();
-    pid_t pid=1;
+    pid_t pid = fork();
+    int code_retour_fils=0;
+    
+    //pid_t pid=1;
     struct sigaction act;
     act.sa_handler=stop_handler;
     sigaction(SIGINT, &act, NULL);
@@ -29,19 +34,24 @@ int main(){
             printf("\tpid fils  : %d\n", getpid());
             printf("\tpid père : %d\n", getppid());
             printf("\tnombre aléatoire : %d\n", (rand()%100));
-            sleep(1);
+            sleep(3);
         }
         else{
+            wait(&code_retour_fils);
             printf("Le processus initial envoie : \n");
             printf("\tpid fils : %d\n", getpid());
             printf("\tpid père : %d\n", getppid());
             printf("\tnombre aléatoire : %d\n", (rand()%100));
-            sleep(1);
+            if (code_retour_fils!=0){
+                printf("\tLe fils s'est arrêté avec un code %d\n", WEXITSTATUS(code_retour_fils));
+            }
+            sleep(3);
         }
     }
+
     printf("SUCCES !\n");
     atexit(exit_message);
-    return EXIT_SUCCESS;
+    return code_retour;
 }
 
 /*
@@ -74,6 +84,11 @@ Pour distinguer les deux messages on peut différencier les PIDs, celui duppliqu
 
 
 Le processus fils s'arrête, et seul le père continue.
+Dans ps a on peut voir que le processus est toujours existant mais en mode zombie (Z+)
+
+Lorsqu'on tue le père, les deux processus disparaissent.
+
+
 
 
 
