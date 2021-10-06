@@ -106,6 +106,10 @@ Dans ps a on peut voir que le processus est toujours existant mais en mode zombi
 
 Lorsqu'on tue le père, les deux processus disparaissent.
 
+Question jsp
+
+Lorsqu'on kill le fils, le pere meurt car plus personne à écouter
+alors que kill le père n'empêche pas le fils d'ecouter 
 
 
 */
