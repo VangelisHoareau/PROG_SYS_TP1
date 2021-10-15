@@ -6,15 +6,19 @@
 
 int running =1;
 int code_retour =0;
+pid_t pid_fork=0;
+
+void exit_message(){
+    printf("Appel a exit_message donc bye ! ");
+}
 
 void stop_handler(int sig){
     printf("\nLe numero du signal est : %d\n", sig);
     code_retour = sig;
-    running=0;
-}
-
-void exit_message(){
-    printf("Appel a exit_message donc bye ! ");
+    // running=0;
+    kill(pid_fork, SIGTERM);
+    atexit(exit_message);
+    exit(EXIT_SUCCESS);
 }
 
 int main(){
@@ -33,12 +37,11 @@ int main(){
     //sigaction(SIGKILL, &act, NULL);
     while(running){
         if (pid==0){
-            printf("Le nouveau fork envoie : \n");
-            printf("\tpid fils  : %d\n", getpid());
-            printf("\tpid père : %d\n", getppid());
+            printf("Le nouveau fork() envoie : \n\tpid fils : %d\n\tpid père : %d\n", getpid(),getppid());
             //printf("\tnombre aléatoire : %d\n", (rand()%100));
-            
-
+            if (pid_fork==0){
+                pid_fork=getpid();
+            }
             close(fds[1]);
             //dup2(fds[0],STDIN_FILENO);
             int varRandom;
@@ -47,9 +50,7 @@ int main(){
         }
         else{
             //wait(&code_retour_fils);
-            printf("Le processus initial envoie : \n");
-            printf("\tpid fils : %d\n", getpid());
-            printf("\tpid père : %d\n", getppid());
+            printf("Le processus initial envoie : \n\tpid fils : %d\n\tpid père : %d\n", getpid(),getppid());
             //printf("\tnombre aléatoire : %d\n", (rand()%100));
 
             int varRandom = rand()%100;
