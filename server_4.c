@@ -14,9 +14,9 @@ void exit_message(){
 
 void stop_handler(int sig){
     printf("Le numero du signal sur %d est : %d\n",getpid(), sig);
-    if (pid!=0){
-        kill(pid, SIGTERM);
-    }
+    
+    kill(pid, SIGTERM);
+    
     atexit(exit_message);
     exit(EXIT_SUCCESS);
 }
