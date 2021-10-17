@@ -4,19 +4,23 @@
 #include <signal.h>
 #include <sys/wait.h>
 
+int isDead =0;
 int running =1;
 int code_retour =0;
-pid_t pid_fork=0;
+pid_t pid=0;
 
 void exit_message(){
-    printf("Appel a exit_message donc bye ! ");
+    printf("Appel a exit_message pour %d donc bye ! \n", getpid());
 }
 
 void stop_handler(int sig){
-    printf("\nLe numero du signal est : %d\n", sig);
-    code_retour = sig;
-    // running=0;
-    kill(pid_fork, SIGTERM);
+    if (pid==0){
+        
+    }
+    printf("Le numero du signal sur %d est : %d\n",getpid(), sig);
+    if (pid!=0){
+        kill(pid, SIGTERM);
+    }
     atexit(exit_message);
     exit(EXIT_SUCCESS);
 }
@@ -26,36 +30,25 @@ int main(){
     int fds[2];
     pipe(fds);
 
-    pid_t pid = fork();
-    //int code_retour_fils=0;
+    pid = fork();
     
-    //pid_t pid=1;
     struct sigaction act;
     act.sa_handler=stop_handler;
     sigaction(SIGINT, &act, NULL);
     sigaction(SIGTERM, &act, NULL);
-    //sigaction(SIGKILL, &act, NULL);
+    
     while(running){
         if (pid==0){
             printf("Le nouveau fork() envoie : \n\tpid fils : %d\n\tpid père : %d\n", getpid(),getppid());
-            //printf("\tnombre aléatoire : %d\n", (rand()%100));
-            if (pid_fork==0){
-                pid_fork=getpid();
-            }
             close(fds[1]);
-            //dup2(fds[0],STDIN_FILENO);
             int varRandom;
             read(fds[0], &varRandom, sizeof(int));
             printf("\tvarRandom = %d\n", varRandom);
         }
         else{
-            //wait(&code_retour_fils);
             printf("Le processus initial envoie : \n\tpid fils : %d\n\tpid père : %d\n", getpid(),getppid());
-            //printf("\tnombre aléatoire : %d\n", (rand()%100));
-
             int varRandom = rand()%100;
             close(fds[0]);
-
             write(fds[1], &varRandom, sizeof(int));
 
             
@@ -67,9 +60,6 @@ int main(){
         }
         sleep(3);
     }
-
-    printf("SUCCES !\n");
-    atexit(exit_message);
     return code_retour;
 }
 
