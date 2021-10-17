@@ -4,7 +4,6 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-int isDead =0;
 int running =1;
 int code_retour =0;
 pid_t pid=0;
@@ -14,9 +13,6 @@ void exit_message(){
 }
 
 void stop_handler(int sig){
-    if (pid==0){
-        
-    }
     printf("Le numero du signal sur %d est : %d\n",getpid(), sig);
     if (pid!=0){
         kill(pid, SIGTERM);
